@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioLaySumm Studio - AI-Powered Biomedical Summarization</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- Header -->
+            <header class="header">
+                <div class="logo">
+                    <span class="icon">🧬</span>
+                    <h1>BioLaySumm Studio</h1>
+                </div>
+                <p class="subtitle">AI-Powered Biomedical Summarization with Transparent RAG Process</p>
+            </header>
+
+            <!-- Main Content -->
+            <div class="main-layout">
+                <!-- Left Column: Input -->
+                <div class="input-column">
+                    <div class="card">
+                        <h3 class="card-title">📝 Input</h3>
+                        
+                        <div class="form-group">
+                            <label for="title">Article Title</label>
+                            <input 
+                                type="text" 
+                                id="title" 
+                                placeholder="Enter title..."
+                                class="input-field"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="article">Full Article Text</label>
+                            <textarea 
+                                id="article" 
+                                placeholder="Paste article (first line = abstract)..."
+                                rows="15"
+                                class="textarea-field"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Readability Style</label>
+                            <div class="style-selector">
+                                <button class="style-btn" data-style="formal">
+                                    <div class="style-icon">📚</div>
+                                    <div class="style-name">Formal</div>
+                                </button>
+                                <button class="style-btn active" data-style="plain">
+                                    <div class="style-icon">📖</div>
+                                    <div class="style-name">Plain</div>
+                                </button>
+                                <button class="style-btn" data-style="high_readability">
+                                    <div class="style-icon">✨</div>
+                                    <div class="style-name">Simple</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button id="generateBtn" class="generate-btn">
+                            <span class="btn-text">🚀 Generate Summary</span>
+                            <span class="spinner hidden"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Output + RAG Visualization -->
+                <div class="output-column">
+                    <!-- Summary Output with Comparison -->
+                    <div class="card summary-output-card" id="summaryCard">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3 class="card-title" style="margin-bottom: 0;">✨ Generated Summaries</h3>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button id="pinBtn" class="pin-btn hidden">
+                                    <span class="pin-icon">📌</span>
+                                    <span class="pin-text">Pin</span>
+                                </button>
+                                <button id="clearBtn" class="clear-btn hidden">
+                                    🗑️ Clear
+                                </button>
+                            </div>
+                        </div>
+                        <div id="outputArea">
+                            <div id="placeholder" class="placeholder">
+                                <div class="placeholder-icon">💬</div>
+                                <p>Summaries will appear here</p>
+                                <p style="font-size: 12px; margin-top: 8px; color: #9ca3af;">
+                                    💡 Generate multiple styles for the same article to compare
+                                </p>
+                            </div>
+                            <div id="summariesContainer" class="summaries-container hidden"></div>
+                            <div id="error" class="error hidden"></div>
+                        </div>
+                        <div class="resize-handle" id="resizeHandle" style="display: none;">
+                            <div class="resize-line"></div>
+                        </div>
+                    </div>
+
+                    <!-- RAG Process Visualization -->
+                    <div class="card" id="ragCard" style="display: none;">
+                        <h3 class="card-title">🔍 RAG Process Visualization</h3>
+                        
+                        <!-- Process Steps -->
+                        <div class="rag-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <div class="step-title">Query Generation</div>
+                                    <div class="step-desc" id="queryInfo"></div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <div class="step-title">Dense Retrieval</div>
+                                    <div class="step-desc" id="denseInfo"></div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <div class="step-title">Reranking</div>
+                                    <div class="step-desc" id="rerankInfo"></div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <div class="step-title">Final Selection</div>
+                                    <div class="step-desc" id="finalInfo"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Original Text View -->
+                        <button class="toggle-btn" id="toggleTextBtn">
+                            👁️ Show Original Text with Highlights
+                        </button>
+
+                        <!-- Original Text with Highlights -->
+                        <div id="highlightedText" class="highlighted-text hidden">
+                            <div class="legend">
+                                <div style="margin-bottom: 12px; font-weight: 600; color: #374151; font-size: 14px;">
+                                    🎨 Color Legend
+                                </div>
+                                
+                                <!-- Green intensity -->
+                                <div style="margin-bottom: 12px;">
+                                    <div style="font-weight: 600; font-size: 13px; color: #10b981; margin-bottom: 6px;">
+                                        🟢 Green: Final Selected Chunks
+                                    </div>
+                                    <div class="legend-gradient">
+                                        <span style="font-weight: 500; font-size: 11px; color: #6b7280; width: 80px;">
+                                            Intensity:
+                                        </span>
+                                        <div class="legend-gradient-bar">
+                                            <div style="background: #d1fae5;" title="1 query"></div>
+                                            <div style="background: #a7f3d0;" title="2 queries"></div>
+                                            <div style="background: #6ee7b7;" title="3 queries"></div>
+                                            <div style="background: #34d399;" title="4 queries"></div>
+                                            <div style="background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 9px;" title="5+ queries">5+</div>
+                                        </div>
+                                        <span style="font-size: 10px; color: #6b7280; white-space: nowrap;">
+                                            1 → 5+ queries
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Yellow intensity -->
+                                <div style="margin-bottom: 12px;">
+                                    <div style="font-weight: 600; font-size: 13px; color: #f59e0b; margin-bottom: 6px;">
+                                        🟡 Yellow: Dense Candidates (not finally selected)
+                                    </div>
+                                    <div class="legend-gradient">
+                                        <span style="font-weight: 500; font-size: 11px; color: #6b7280; width: 80px;">
+                                            Intensity:
+                                        </span>
+                                        <div class="legend-gradient-bar">
+                                            <div style="background: #fef3c7;" title="1 query"></div>
+                                            <div style="background: #fde68a;" title="2 queries"></div>
+                                            <div style="background: #fcd34d;" title="3 queries"></div>
+                                            <div style="background: #fbbf24;" title="4 queries"></div>
+                                            <div style="background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-size: 9px;" title="5+ queries">5+</div>
+                                        </div>
+                                        <span style="font-size: 10px; color: #6b7280; white-space: nowrap;">
+                                            1 → 5+ queries
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div style="padding: 10px; background: #eff6ff; border-radius: 6px; font-size: 12px; color: #1e40af; border-left: 3px solid #3b82f6;">
+                                    💡 <strong>Darker color</strong> = selected by more queries = higher importance
+                                </div>
+                            </div>
+                            <div id="textContent" class="text-content"></div>
+                        </div>
+
+                        <!-- Detailed Chunk Info -->
+                        <details class="details-panel">
+                            <summary>📊 Detailed Chunk Scores</summary>
+                            <div id="chunkDetails" class="chunk-details"></div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>Powered by Qwen 2.5-3B + RAG | Multi-Query Retrieval + CrossEncoder Reranking</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
