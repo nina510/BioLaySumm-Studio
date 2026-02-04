@@ -1,0 +1,31 @@
+#
+# BioLaySumm RAG Demo - Python Dependencies
+# This requirements.txt is optimized for deploying the
+# backend + frontend version (FastAPI + static frontend),
+# e.g. on Heroku.
+#
+
+# --- Core web stack ---
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.0
+
+# --- RAG stack ---
+langchain-community==0.0.20
+langchain-text-splitters>=1.0.0
+faiss-cpu==1.7.4
+sentence-transformers==2.2.2
+transformers==4.36.0
+torch==2.1.0
+
+# --- NLP tools ---
+nltk==3.8.1
+
+# --- Optional: utilities & evaluation (not required for basic demo) ---
+numpy>=1.24.0
+pandas>=2.0.0
+datasets>=2.14.0
+rouge-score>=0.1.2
+bert-score>=0.3.13
+textstat>=0.7.3
+
